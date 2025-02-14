@@ -1,4 +1,4 @@
-# Survival Analysis with Machine Learning 🏥📈  
+# Survival Analysis with Machine Learning 
 
 Ce dépôt contient une exploration des méthodes d'analyse de survie, incluant :  
 - 📌 **Méthodes Classiques** : Kaplan-Meier, modèles de Cox, Aalen, etc.  
