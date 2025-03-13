@@ -1,158 +1,227 @@
 import streamlit as st
 import pandas as pd
 import joblib
-import json
 import os
-import numpy as np
+import json
 import tensorflow as tf
-from PIL import Image
+import numpy as np
 import plotly.express as px
+from datetime import datetime
 from preprocessing import preprocess_data
 
-# -------------------------------------------------------------
+# -------------------------------
 # Configuration initiale
-# -------------------------------------------------------------
+# -------------------------------
+st.set_page_config(
+    page_title="OncoSurv Sénégal",
+    page_icon="🩺",
+    layout="wide"
+)
 
-# Chargement de la configuration depuis le JSON
-with open('config/features.json') as f:
-    features_config = json.load(f)
-
-# -------------------------------------------------------------
+# -------------------------------
 # Fonctions utilitaires
-# -------------------------------------------------------------
+# -------------------------------
+def load_config(file_path):
+    """Charge la configuration des features depuis un fichier JSON"""
+    with open(file_path) as f:
+        return json.load(f)
 
-def load_model(model_path):
-    """Charge un modèle avec gestion des types"""
-    if model_path.endswith('.keras'):
-        return tf.keras.models.load_model(model_path)
-    else:
-        return joblib.load(model_path)
+def init_session_state():
+    """Initialise l'état de la session"""
+    if 'patient_data' not in st.session_state:
+        st.session_state.patient_data = pd.DataFrame()
+    if 'predictions' not in st.session_state:
+        st.session_state.predictions = {}
 
-def predict_survival(model, data, model_name):
-    """Effectue la prédiction selon le modèle"""
-    try:
-        if model_name == 'COXPH':
-            return model.predict_median(data)
-        elif model_name == 'RSF':
-            return model.predict(data)[0]
-        elif model_name == 'DEEPSURV':
-            return model.predict(data)[0][0]
-        else:
-            return model.predict(data)[0]
-    except Exception as e:
-        st.error(f"Erreur de prédiction: {e}")
-        return None
+# -------------------------------
+# Chargement des configurations
+# -------------------------------
+FEATURES_CONFIG = load_config('config/features.json')
+MODELS_CONFIG = {
+    'coxph': 'models/coxph.pkl',
+    'rsf': 'models/rsf.pkl',
+    'gbst': 'models/gbst.pkl',
+    'deepsurv': 'models/deepsurv.keras'
+}
 
-# -------------------------------------------------------------
-# Interface utilisateur
-# -------------------------------------------------------------
-
-def main():
-    st.set_page_config(
-        page_title="OncoSurv Sénégal",
-        page_icon="🩺",
-        layout="wide"
-    )
-
-    # Sidebar avec paramètres
+# -------------------------------
+# Composants de l'interface
+# -------------------------------
+def show_sidebar():
+    """Affiche la barre latérale avec les menus"""
     with st.sidebar:
-        st.title("Configuration")
-        selected_models = st.multiselect(
-            "Modèles à utiliser",
-            ['COXPH', 'RSF', 'GBST', 'DEEPSURV'],
-            default=['COXPH', 'RSF']
-        )
+        st.image("logo.png", width=200)  # Ajoutez votre logo
+        menu_choice = st.radio("Navigation", [
+            "Formulaire Patient",
+            "Tableau de Bord",
+            "Gestion des Modèles",
+            "Aide & Documentation"
+        ])
+        
+        # Section contact
+        st.markdown("---")
+        st.subheader("Contact")
+        st.markdown("📞 +221 77 123 45 67")
+        st.markdown("📧 contact@oncosurv.sn")
+        st.markdown("🌐 [www.oncosurv.sn](https://www.oncosurv.sn)")
+        st.markdown("""
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <a href="https://facebook.com"><img src="https://img.icons8.com/color/48/000000/facebook.png" width="30"></a>
+                <a href="https://twitter.com"><img src="https://img.icons8.com/color/48/000000/twitter.png" width="30"></a>
+                <a href="https://github.com"><img src="https://img.icons8.com/color/48/000000/github.png" width="30"></a>
+            </div>
+        """, unsafe_allow_html=True)
     
-    # Navigation principale
-    tabs = ["📝 Formulaire", "📊 Dashboard", "⚙️ Administration"]
-    current_tab = st.sidebar.radio("Navigation", tabs)
+    return menu_choice
 
-    # Onglet Formulaire
-    if current_tab == "📝 Formulaire":
-        st.header("Formulaire Patient")
-        
-        # Saisie dynamique depuis features.json
-        patient_data = {}
+def patient_form():
+    """Affiche le formulaire de saisie patient"""
+    st.header("📝 Formulaire Patient")
+    inputs = {}
+    
+    with st.form("patient_form"):
         cols = st.columns(3)
-        for i, (feature, config) in enumerate(features_config.items()):
-            with cols[i%3]:
-                if config['type'] == 'number':
-                    patient_data[feature] = st.number_input(
-                        config['label'],
-                        min_value=config['min'],
-                        max_value=config['max'],
-                        value=config['default']
-                    )
-                elif config['type'] == 'select':
-                    patient_data[feature] = st.selectbox(
-                        config['label'],
-                        options=config['options']
-                    )
-
-        if st.button("Lancer la prédiction"):
-            df = preprocess_data(pd.DataFrame([patient_data]))
-            
-            # Chargement des modèles
-            models = {name: load_model(f'models/{name.lower()}.pkl') 
-                     for name in selected_models}
-            
-            # Affichage des résultats
-            st.subheader("Résultats de prédiction")
-            results = {}
-            
-            for name, model in models.items():
-                prediction = predict_survival(model, df, name)
-                results[name] = prediction
-                st.metric(label=name, value=f"{prediction:.1f} mois")
-            
-            # Visualisation
-            fig = px.bar(
-                x=list(results.keys()),
-                y=list(results.values()),
-                labels={'x':'Modèle', 'y':'Mois de survie'},
-                title="Comparaison des modèles"
-            )
-            st.plotly_chart(fig)
-
-    # Onglet Dashboard
-    elif current_tab == "📊 Dashboard":
-        st.header("Analytique des données")
+        col_idx = 0
         
-        # Chargement des données historiques
+        for feature, config in FEATURES_CONFIG.items():
+            with cols[col_idx]:
+                if config["type"] == "number":
+                    inputs[feature] = st.number_input(
+                        config["label"],
+                        min_value=config["min"],
+                        max_value=config["max"],
+                        value=config["default"]
+                    )
+                elif config["type"] == "select":
+                    inputs[feature] = st.selectbox(
+                        config["label"],
+                        options=config["options"],
+                        index=config["options"].index(config["default"])
+                    )
+            col_idx = (col_idx + 1) % 3
+        
+        submitted = st.form_submit_button("Soumettre le formulaire")
+        if submitted:
+            process_patient_data(inputs)
+
+def process_patient_data(inputs):
+    """Traite les données du patient"""
+    df = pd.DataFrame([inputs])
+    df = preprocess_data(df)
+    st.session_state.patient_data = df
+    make_predictions(df)
+
+def make_predictions(data):
+    """Effectue les prédictions avec tous les modèles"""
+    models = {name: load_model(path) for name, path in MODELS_CONFIG.items()}
+    predictions = {}
+    
+    for name, model in models.items():
         try:
-            hist_data = pd.read_csv('data/historical_data.csv')
-            st.dataframe(hist_data.tail(10))
-            
-            # Visualisations
-            col1, col2 = st.columns(2)
-            with col1:
-                fig = px.histogram(hist_data, x='Prediction', nbins=20)
-                st.plotly_chart(fig)
-            
-            with col2:
-                fig = px.box(hist_data, y='AGE', x='SEXE')
-                st.plotly_chart(fig)
-                
-        except FileNotFoundError:
-            st.warning("Aucune donnée historique trouvée")
+            pred = model.predict(data)[0]
+            predictions[name] = max(pred, 0)  # Empêcher les valeurs négatives
+        except Exception as e:
+            st.error(f"Erreur avec {name}: {str(e)}")
+    
+    st.session_state.predictions = predictions
+    save_to_history(data, predictions)
 
-    # Onglet Administration
-    elif current_tab == "⚙️ Administration":
-        st.header("Gestion des modèles")
+def save_to_history(data, predictions):
+    """Sauvegarde les données dans l'historique"""
+    record = data.copy()
+    record['date'] = datetime.now().strftime("%Y-%m-%d %H:%M")
+    record['model'] = str(list(predictions.keys()))
+    record['prediction'] = np.mean(list(predictions.values()))
+    
+    if not os.path.exists("history.csv"):
+        pd.DataFrame().to_csv("history.csv")
+    
+    record.to_csv("history.csv", mode='a', header=False)
+
+def show_dashboard():
+    """Affiche le tableau de bord analytique"""
+    st.header("📊 Tableau de Bord")
+    
+    if os.path.exists("history.csv"):
+        df = pd.read_csv("history.csv")
         
-        # Téléversement de nouveaux modèles
-        uploaded_model = st.file_uploader("Nouveau modèle", type=['pkl', 'keras'])
-        if uploaded_model:
-            # Sauvegarde du modèle
-            with open(f'models/{uploaded_model.name}', 'wb') as f:
-                f.write(uploaded_model.getbuffer())
-            st.success("Modèle mis à jour avec succès!")
+        # Statistiques principales
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Patients analysés", len(df))
+        col2.metric("Survie moyenne prédite", f"{df['prediction'].mean():.1f} mois")
+        col3.metric("Âge moyen", f"{df['AGE'].mean():.1f} ans")
         
-        # Gestion des variables
-        if st.button("Recharger la configuration"):
-            with open('config/features.json') as f:
-                features_config = json.load(f)
-            st.experimental_rerun()
+        # Visualisations
+        fig = px.histogram(df, x='prediction', nbins=20, 
+                          title="Distribution des prédictions de survie")
+        st.plotly_chart(fig)
+        
+        fig2 = px.scatter(df, x='AGE', y='prediction', 
+                         color='SEXE', title="Relation Âge/Prédiction")
+        st.plotly_chart(fig2)
+    else:
+        st.warning("Aucune donnée historique disponible")
+
+def model_management():
+    """Interface de gestion des modèles"""
+    st.header("🤖 Gestion des Modèles")
+    
+    st.subheader("Modèles Actuels")
+    for name, path in MODELS_CONFIG.items():
+        st.write(f"**{name.upper()}**: {path}")
+    
+    st.subheader("Mise à Jour des Modèles")
+    new_model = st.file_uploader("Téléverser un nouveau modèle", type=["pkl", "keras"])
+    if new_model:
+        save_path = os.path.join("models", new_model.name)
+        with open(save_path, "wb") as f:
+            f.write(new_model.getbuffer())
+        st.success(f"Modèle {new_model.name} téléversé avec succès!")
+
+# -------------------------------
+# Interface principale
+# -------------------------------
+def main():
+    init_session_state()
+    menu_choice = show_sidebar()
+    
+    if menu_choice == "Formulaire Patient":
+        patient_form()
+        if not st.session_state.patient_data.empty:
+            st.subheader("Résultats des Prédictions")
+            cols = st.columns(len(st.session_state.predictions))
+            for (name, pred), col in zip(st.session_state.predictions.items(), cols):
+                col.metric(f"Modèle {name.upper()}", f"{pred:.1f} mois")
+            
+            st.download_button(
+                label="📥 Télécharger le rapport",
+                data=st.session_state.patient_data.to_csv(),
+                file_name="rapport_patient.csv"
+            )
+    
+    elif menu_choice == "Tableau de Bord":
+        show_dashboard()
+    
+    elif menu_choice == "Gestion des Modèles":
+        model_management()
+    
+    elif menu_choice == "Aide & Documentation":
+        st.header("📚 Documentation")
+        st.markdown("""
+            ## Guide d'utilisation
+            ### Formulaire Patient
+            - Renseignez toutes les informations cliniques
+            - Cliquez sur 'Soumettre' pour obtenir les prédictions
+            
+            ### Interprétation des résultats
+            - Les prédictions sont en mois
+            - Considérer une marge d'erreur de ±15%
+            
+            ## Support technique
+            Contactez notre équipe :
+            - Email: support@oncosurv.sn
+            - Hotline: +221 800 123 456
+        """)
 
 if __name__ == "__main__":
     main()
