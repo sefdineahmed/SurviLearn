@@ -1,15 +1,75 @@
-# config/features.json
 {
-        'AGE': {"label": "Âge", "type": "number", "min": 18, "max": 120, "default": 50},
-       'Cardiopathie': {"label": "Cardiopathie", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"},
-        'Ulceregastrique': {"label": "Ulcère gastrique", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"},
-        'Douleurepigastrique': {"label": "Douleur épigastrique", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"},
-        'Ulcero-bourgeonnant': {"label": "Ulcero-bourgeonnant", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"},
-        'Denitrution': {"label": "Dénutrition", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"},
-        'Tabac': {"label": "Tabac", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"},
-        'Mucineux': {"label": "Mucineux", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"},
-        'Infiltrant': {"label": "Infiltrant", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"},
-        'Stenosant': {"label": "Sténosant", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"},
-        'Metastases': {"label": "Métastases", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"},
-        'Adenopathie': {"label": "Adénopathie", "type": "selectbox", "options": ["Oui", "Non"], "default": "Non"}
+    "AGE": {
+        "label": "Âge",
+        "type": "number",
+        "min": 18,
+        "max": 120,
+        "default": 50
+    },
+    "Cardiopathie": {
+        "label": "Cardiopathie",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    },
+    "Ulceregastrique": {
+        "label": "Ulcère gastrique",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    },
+    "Douleurepigastrique": {
+        "label": "Douleur épigastrique",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    },
+    "Ulcero-bourgeonnant": {
+        "label": "Ulcero-bourgeonnant",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    },
+    "Denitrution": {
+        "label": "Dénutrition",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    },
+    "Tabac": {
+        "label": "Tabac",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    },
+    "Mucineux": {
+        "label": "Mucineux",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    },
+    "Infiltrant": {
+        "label": "Infiltrant",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    },
+    "Stenosant": {
+        "label": "Sténosant",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    },
+    "Metastases": {
+        "label": "Métastases",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    },
+    "Adenopathie": {
+        "label": "Adénopathie",
+        "type": "selectbox",
+        "options": ["Oui", "Non"],
+        "default": "Non"
+    }
 }
