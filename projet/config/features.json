@@ -8,67 +8,67 @@
     },
     "Cardiopathie": {
         "label": "Cardiopathie",
-        "type": "selectbox",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     },
     "Ulceregastrique": {
         "label": "Ulcère gastrique",
-        "type": "selectbox",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     },
     "Douleurepigastrique": {
         "label": "Douleur épigastrique",
-        "type": "selectbox",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     },
-    "Ulcero-bourgeonnant": {
-        "label": "Ulcero-bourgeonnant",
-        "type": "selectbox",
+    "Ulcero_bourgeonnant": {
+        "label": "Ulcéro-bourgeonnant",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     },
-    "Denitrution": {
+    "Denutrution": {
         "label": "Dénutrition",
-        "type": "selectbox",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     },
     "Tabac": {
         "label": "Tabac",
-        "type": "selectbox",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     },
     "Mucineux": {
         "label": "Mucineux",
-        "type": "selectbox",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     },
     "Infiltrant": {
         "label": "Infiltrant",
-        "type": "selectbox",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     },
     "Stenosant": {
         "label": "Sténosant",
-        "type": "selectbox",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     },
     "Metastases": {
         "label": "Métastases",
-        "type": "selectbox",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     },
     "Adenopathie": {
         "label": "Adénopathie",
-        "type": "selectbox",
+        "type": "select",
         "options": ["Oui", "Non"],
         "default": "Non"
     }
