@@ -1,28 +1,19 @@
 # Core
-streamlit>=1.22.0
-pandas>=1.5.0
-numpy>=1.23.0
-joblib>=1.2.0
-
-# Machine Learning
-tensorflow>=2.12.0
-scikit-learn>=1.0.2
-lifelines>=0.27.7
-scikit-survival>=0.19.0
-
-# Visualisation
-plotly>=5.11.0
-
-# Utilitaires
-pyyaml>=6.0
-python-dateutil>=2.8.2
-
 streamlit
 pandas
 numpy
-joblib
-tensorflow
-lifelines
 openpyxl
+joblib
+
+# Machine Learning
+tensorflow
 scikit-learn
+lifelines
 scikit-survival
+
+# Visualisation
+plotly
+
+# Utilitaires
+pyyaml
+python-dateutil
