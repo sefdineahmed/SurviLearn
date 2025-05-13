@@ -13,8 +13,8 @@ Ce dépôt contient une exploration des méthodes d'analyse de survie, incluant 
 ## 🚀 Installation  
 Clonez le dépôt et installez les dépendances :  
 ```bash
-git clone https://github.com/votre-utilisateur/Survival-Analysis-ML.git  
-cd Survival-Analysis-ML  
+git clone https://github.com/sefdineahmed/SurviLearn.git  
+cd SurviLearn 
 pip install -r requirements.txt  
 
 
